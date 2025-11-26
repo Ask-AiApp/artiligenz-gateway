@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npx vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -60,8 +60,8 @@
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.9",
-    "zod": "^3.25.76",
-    "vite": "^5.4.19"
+    "vite": "^7.2.4",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
