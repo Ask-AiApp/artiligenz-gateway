@@ -1,33 +1,33 @@
-// components/ArticleCard.tsx
-import type { Article } from "@/types"; // or wherever your type lives
+import type { Article } from "@/types";
 
-const FALLBACK_IMAGES: Record<string, string> = {
-  top: "/images/ai-generic.jpg",
-  trending: "/images/ai-trending.jpg",
-  health: "/images/ai-health.jpg",
-  science: "/images/ai-science.jpg",
-  education: "/images/ai-education.jpg",
-  sports: "/images/ai-sports.jpg",
-  business: "/images/ai-business.jpg",
-};
+const FALLBACK_IMAGE = "/ai-generic.jpg";
 
 type Props = {
   article: Article;
 };
 
 export function ArticleCard({ article }: Props) {
-  const fallback = FALLBACK_IMAGES[article.category] ?? "/images/ai-generic.jpg";
-  const img = article.imageUrl || fallback;
+  // Prefer article image, otherwise fallback
+  const initialSrc = article.imageUrl || FALLBACK_IMAGE;
 
   return (
     <article className="flex flex-col rounded-2xl bg-card/80 border border-border/60 shadow-lg overflow-hidden backdrop-blur-xl">
       {/* Image header */}
       <div className="relative h-40 w-full overflow-hidden">
         <img
-          src={img}
+          src={initialSrc}
           alt={article.title}
-          className="h-full w-full object-cover"
           loading="lazy"
+          className="h-full w-full object-cover"
+          // If the remote image 404s or is blocked, swap to fallback once
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (img.src.endsWith(FALLBACK_IMAGE) || img.dataset.fallback === "true") {
+              return; // already using fallback, avoid infinite loop
+            }
+            img.src = FALLBACK_IMAGE;
+            img.dataset.fallback = "true";
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent" />
       </div>
