@@ -1,60 +1,70 @@
-import { Article } from "@/config/feeds";
-import { formatDistanceToNow } from "date-fns";
+// components/ArticleCard.tsx
+import type { Article } from "@/types"; // or wherever your type lives
 
-interface ArticleCardProps {
+const FALLBACK_IMAGES: Record<string, string> = {
+  top: "/images/ai-generic.jpg",
+  trending: "/images/ai-trending.jpg",
+  health: "/images/ai-health.jpg",
+  science: "/images/ai-science.jpg",
+  education: "/images/ai-education.jpg",
+  sports: "/images/ai-sports.jpg",
+  business: "/images/ai-business.jpg",
+};
+
+type Props = {
   article: Article;
-  variant?: "hero" | "small";
-}
+};
 
-export const ArticleCard = ({ article, variant = "small" }: ArticleCardProps) => {
-  const timeAgo = formatDistanceToNow(new Date(article.publishedAt), { addSuffix: true });
-
-  if (variant === "hero") {
-    return (
-      <a
-        href={article.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block bg-white dark:bg-slate-950/70 rounded-2xl shadow-lg dark:shadow-[0_0_25px_rgba(56,189,248,0.4)] overflow-hidden hover:shadow-xl dark:hover:shadow-[0_0_35px_rgba(56,189,248,0.6)] transition-all hover:-translate-y-1 border border-slate-200 dark:border-cyan-400/25 backdrop-blur-xl"
-      >
-        {article.imageUrl && (
-          <img
-            src={article.imageUrl}
-            alt={article.title}
-            className="w-full h-64 object-cover"
-          />
-        )}
-        <div className="p-5">
-          <h3 className="text-2xl font-semibold mb-2 text-slate-900 dark:text-slate-50 hover:text-blue-700 dark:hover:text-cyan-300 transition-colors">
-            {article.title}
-          </h3>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 line-clamp-2">
-            {article.excerpt}
-          </p>
-          <span className="text-xs text-blue-700 dark:text-cyan-300 font-medium">
-            {article.sourceName} • {timeAgo}
-          </span>
-        </div>
-      </a>
-    );
-  }
+export function ArticleCard({ article }: Props) {
+  const fallback = FALLBACK_IMAGES[article.category] ?? "/images/ai-generic.jpg";
+  const img = article.imageUrl || fallback;
 
   return (
-    <a
-      href={article.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block bg-white dark:bg-slate-950/70 rounded-xl p-4 shadow-md dark:shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-lg dark:hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] transition-all hover:-translate-y-0.5 border border-slate-200 dark:border-cyan-400/25 backdrop-blur-xl"
-    >
-      <h4 className="font-semibold text-lg mb-1 text-slate-900 dark:text-slate-50 hover:text-blue-700 dark:hover:text-cyan-300 transition-colors line-clamp-2">
-        {article.title}
-      </h4>
-      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 line-clamp-2">
-        {article.excerpt}
-      </p>
-      <span className="text-xs text-blue-700 dark:text-cyan-300 font-medium">
-        {article.sourceName} • {timeAgo}
-      </span>
-    </a>
+    <article className="flex flex-col rounded-2xl bg-card/80 border border-border/60 shadow-lg overflow-hidden backdrop-blur-xl">
+      {/* Image header */}
+      <div className="relative h-40 w-full overflow-hidden">
+        <img
+          src={img}
+          alt={article.title}
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent" />
+      </div>
+
+      {/* Text content */}
+      <div className="flex flex-1 flex-col gap-2 px-4 pb-4 pt-3">
+        <h3 className="text-base font-semibold leading-snug line-clamp-2">
+          {article.title}
+        </h3>
+
+        {article.excerpt && (
+          <p className="text-sm text-muted-foreground line-clamp-3">
+            {article.excerpt}
+          </p>
+        )}
+
+        <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+          <span className="truncate max-w-[60%]">{article.sourceName}</span>
+          <span>
+            {new Date(article.publishedAt).toLocaleString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+              day: "2-digit",
+              month: "short",
+            })}
+          </span>
+        </div>
+
+        <a
+          href={article.url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 inline-flex items-center text-xs font-medium text-primary hover:underline"
+        >
+          Read article ↗
+        </a>
+      </div>
+    </article>
   );
-};
+}
