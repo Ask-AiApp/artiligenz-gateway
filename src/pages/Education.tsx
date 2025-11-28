@@ -3,10 +3,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CategoryHero } from "@/components/CategoryHero";
 import { FeaturedArticle } from "@/components/FeaturedArticle";
-import { FeaturedArticlesGrid } from "@/components/FeaturedArticlesGrid";
-import { ArticleListGrid } from "@/components/ArticleListGrid";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Article } from "@/config/feeds";
+import { ArticleCard } from "@/components/ArticleCard";
+import type { Article } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
 import { GraduationCap } from "lucide-react";
 
@@ -19,17 +18,19 @@ const Education = () => {
     const fetchEducation = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase.functions.invoke('fetch-rss?category=education');
+        const { data, error } = await supabase.functions.invoke(
+          "fetch-rss?category=education"
+        );
 
         if (error) {
-          setError('Failed to load education news');
-          console.error('Error:', error);
+          setError("Failed to load education news");
+          console.error("Error:", error);
         } else {
-          setArticles(data?.items || []);
+          setArticles((data as any)?.items || []);
         }
       } catch (err) {
-        setError('Failed to load education news');
-        console.error('Exception:', err);
+        setError("Failed to load education news");
+        console.error("Exception:", err);
       } finally {
         setLoading(false);
       }
@@ -38,14 +39,14 @@ const Education = () => {
     fetchEducation();
   }, []);
 
-  const featuredArticle = articles.find(a => a.imageUrl) || articles[0];
+  const featuredArticle = articles.find((a) => a.imageUrl) || articles[0];
   const featuredGrid = articles.slice(1, 4);
   const remainingArticles = articles.slice(4);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-sky-950">
       <Header />
-      
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         <CategoryHero
           icon={GraduationCap}
@@ -58,7 +59,10 @@ const Education = () => {
             <Skeleton className="h-[500px] w-full rounded-3xl bg-slate-200 dark:bg-slate-800/50" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-64 w-full rounded-2xl bg-slate-200 dark:bg-slate-800/50" />
+                <Skeleton
+                  key={i}
+                  className="h-64 w-full rounded-2xl bg-slate-200 dark:bg-slate-800/50"
+                />
               ))}
             </div>
           </div>
@@ -69,8 +73,22 @@ const Education = () => {
         ) : (
           <div className="space-y-8">
             {featuredArticle && <FeaturedArticle article={featuredArticle} />}
-            {featuredGrid.length > 0 && <FeaturedArticlesGrid articles={featuredGrid} />}
-            {remainingArticles.length > 0 && <ArticleListGrid articles={remainingArticles} />}
+
+            {featuredGrid.length > 0 && (
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredGrid.map((article) => (
+                  <ArticleCard key={article.id} article={article} />
+                ))}
+              </section>
+            )}
+
+            {remainingArticles.length > 0 && (
+              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {remainingArticles.map((article) => (
+                  <ArticleCard key={article.id} article={article} />
+                ))}
+              </section>
+            )}
           </div>
         )}
       </div>
